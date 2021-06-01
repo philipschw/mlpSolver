@@ -1,0 +1,25 @@
+{
+  "eqn_config": {
+    "_comment": "Semilinear PDE for Valuing derivative contracts with counterparty credit risk from paper https://arxiv.org/abs/1607.03295v4",
+    "eqn_name": "PricingCreditRisk",
+    "total_time": 2.0,
+    "start_time": 0.0,
+    "dim": [1, 100],
+    "num_iteration": [5],
+    "dim_system": 1,
+	"gradient_dependent": false,
+	"num_gridpoint": 1,
+	"sigma": 0.2,
+	"beta": 0.03,
+	"K1": [90.0, 30.0],
+	"K2": [110.0, 60.0],
+	"L": [10.0, 15.0]
+  },
+  "eval_config": {
+    "reference_sol": [-0.883, 2.626],
+    "num_realization": 5,
+    "multiprocess": true,
+    "verbose": true,
+	"sample_cost_1D": 1
+  }
+}

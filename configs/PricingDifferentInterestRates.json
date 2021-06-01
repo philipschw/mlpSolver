@@ -1,0 +1,25 @@
+{
+  "eqn_config": {
+    "_comment": "Pricing Problem of an European option in a financial market with different interest rates for borrowing and lending. from paper https://arxiv.org/abs/1607.03295v4",
+    "eqn_name": "PricingDifferentInterestRates",
+    "total_time": 0.5,
+    "start_time": 0.0,
+    "dim": [1,100],
+    "num_iteration": [5],
+    "dim_system": 1,
+	"num_gridpoint": 1,
+	"time_dist_exponent": 0.5,
+	"gradient_dependent": true,
+	"sigma": 0.2,
+	"mu": 0.06,
+	"Rl": 0.04,
+	"Rb": 0.06
+  },
+  "eval_config": {
+    "reference_sol": [7.156,21.299],
+    "num_realization": 5,
+    "multiprocess": true,
+    "verbose": true,
+	"sample_cost_1D": 1
+  }
+}

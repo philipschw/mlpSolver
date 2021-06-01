@@ -1,0 +1,28 @@
+{
+  "eqn_config": {
+    "_comment": "Recursive pricing with default risk from paper https://arxiv.org/abs/1607.03295v4",
+    "eqn_name": "RecursivePricingDefaultRisk",
+    "total_time": 1.0,
+    "start_time": 0.0,
+    "dim": [1,100],
+    "num_iteration": [5],
+    "dim_system": 1,
+	"gradient_dependent": false,
+	"num_gridpoint": 1,
+	"sigma": 0.2,
+	"mu": 0.02,
+	"delta": 0.66667,
+	"R": 0.02,
+	"vh": [50,47],
+	"vl": [120,65],
+	"gammah": 0.2,
+	"gammal": 0.02
+  },
+  "eval_config": {
+    "reference_sol": [97.705, 58.113],
+    "num_realization": 5,
+    "multiprocess": true,
+    "verbose": true,
+	"sample_cost_1D": 1
+  }
+}

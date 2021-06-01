@@ -1,0 +1,20 @@
+{
+  "eqn_config": {
+    "_comment": "Sine-Gordon type PDE from paper arxiv.org/abs/2005.10206v2",
+    "eqn_name": "SineGordon",
+    "total_time": 1.0,
+    "start_time": 0.0,
+    "dim": [10, 100, 1000],
+    "num_iteration": [5],
+    "dim_system": 1,
+	"gradient_dependent": false,
+	"num_gridpoint": 1
+  },
+  "eval_config": {
+    "reference_sol": [0.30623, 0.03376, 0.00339],
+    "num_realization": 5,
+    "multiprocess": true,
+    "verbose": true,
+	"sample_cost_1D": 1
+  }
+}

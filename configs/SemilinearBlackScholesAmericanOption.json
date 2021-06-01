@@ -1,0 +1,24 @@
+{
+  "eqn_config": {
+    "_comment": "Pricing a American Option with an Semilinear Black-Scholes PDE from paper https://link.springer.com/article/10.1007%2Fs007800200091",
+    "eqn_name": "SemilinearBlackScholesAmericanOption",
+    "total_time": 1.0,
+    "start_time": 0.0,
+    "dim": [1],
+    "num_iteration": [5],
+    "dim_system": 1,
+	"gradient_dependent": false,
+	"num_gridpoint": 1,
+	"sigma": 0.4,
+	"mu": 0.06,
+	"R": 0.06,
+	"K": 40.0
+  },
+  "eval_config": {
+    "reference_sol": [5.30],
+    "num_realization": 5,
+    "multiprocess": true,
+    "verbose": true,
+	"sample_cost_1D": 1
+  }
+}
