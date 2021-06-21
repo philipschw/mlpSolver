@@ -8,14 +8,16 @@
     "num_iteration": [5],
     "dim_system": 1,
 	"gradient_dependent": false,
-	"num_gridpoint": [32],
-	"samplingMethod": ["TamedEulerMaruyama"]
+	"time_dist_exponent": 1.0,
+	"num_gridpoint": [16],
+	"samplingMethod": ["itoRI5","EulerMaruyama"]
   },
   "eval_config": {
-    "reference_sol": [11.98736, 14.68754, 17.07766],
+    "reference_sol": [[11.98736], [14.68754], [17.07766]],
     "num_realization": 1,
     "multiprocess": true,
     "verbose": true,
-	"sample_cost_1D": 1
+	"advanced": [true,true,false,false,false,true,true,false],
+	"saveSamples": false
   }
 }

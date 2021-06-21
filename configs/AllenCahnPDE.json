@@ -4,17 +4,20 @@
     "eqn_name": "AllenCahn",
     "total_time": 1.0,
     "start_time": 0.0,
-    "dim": [10, 100, 1000],
+    "dim": [10],
     "num_iteration": [5],
     "dim_system": 1,
 	"gradient_dependent": false,
-	"num_gridpoint": 1
+	"time_dist_exponent": 1.0,
+	"num_gridpoint": [1],
+	"samplingMethod": ["Explicit", "EulerMaruyama"]
   },
   "eval_config": {
     "reference_sol": [0.29555, 0.03373, 0.00340],
     "num_realization": 5,
     "multiprocess": true,
     "verbose": true,
-	"sample_cost_1D": 1
+	"advanced": [true,true,false,false,false,false,false,false],
+	"saveSamples": false
   }
 }

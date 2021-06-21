@@ -4,11 +4,12 @@
     "eqn_name": "RecursivePricingDefaultRisk",
     "total_time": 1.0,
     "start_time": 0.0,
-    "dim": [1,100],
+    "dim": [100],
     "num_iteration": [5],
     "dim_system": 1,
 	"gradient_dependent": false,
-	"num_gridpoint": 1,
+	"time_dist_exponent": 1.0,
+	"num_gridpoint": [1,8,16,32],
 	"sigma": 0.2,
 	"mu": 0.02,
 	"delta": 0.66667,
@@ -16,13 +17,15 @@
 	"vh": [50,47],
 	"vl": [120,65],
 	"gammah": 0.2,
-	"gammal": 0.02
+	"gammal": 0.02,
+	"samplingMethod": ["EulerMaruyama"]
   },
   "eval_config": {
     "reference_sol": [97.705, 58.113],
-    "num_realization": 5,
+    "num_realization": 1,
     "multiprocess": true,
     "verbose": true,
-	"sample_cost_1D": 1
+	"advanced": [false,false,false,false,false,false,false,false],
+	"saveSamples": false
   }
 }

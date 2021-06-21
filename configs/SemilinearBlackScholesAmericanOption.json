@@ -8,17 +8,20 @@
     "num_iteration": [5],
     "dim_system": 1,
 	"gradient_dependent": false,
-	"num_gridpoint": 1,
+	"time_dist_exponent": 1.0,
+	"num_gridpoint": [1],
 	"sigma": 0.4,
 	"mu": 0.06,
 	"R": 0.06,
-	"K": 40.0
+	"K": 40.0,
+	"samplingMethod": ["Explicit", "EulerMaruyama"]
   },
   "eval_config": {
     "reference_sol": [5.30],
     "num_realization": 5,
     "multiprocess": true,
     "verbose": true,
-	"sample_cost_1D": 1
+	"advanced": [false,false,false,false,false,false,false,false],
+	"saveSamples": false
   }
 }

@@ -5,17 +5,20 @@
     "total_time": 1.0,
     "start_time": 0.0,
     "dim": [100],
-    "num_iteration": [3],
+    "num_iteration": [2],
     "dim_system": 1,
-	"num_gridpoint": 1,
+	"num_gridpoint": [1,8],
 	"time_dist_exponent": 0.5,
-	"gradient_dependent": true
+	"gradient_dependent": true,
+	"time_dist_exponent": 0.5,
+	"samplingMethod": ["Explicit", "EulerMaruyama", "itoSRI2Ikpw"]
   },
   "eval_config": {
     "reference_sol": [4.5901],
     "num_realization": 5,
     "multiprocess": false,
     "verbose": true,
-	"sample_cost_1D": 1
+	"advanced": [true,true,true,false,false,false,false,false],
+	"saveSamples": false
   }
 }
