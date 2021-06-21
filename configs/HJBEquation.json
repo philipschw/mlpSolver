@@ -14,7 +14,7 @@
 	"samplingMethod": ["Explicit", "EulerMaruyama", "itoSRI2Ikpw"]
   },
   "eval_config": {
-    "reference_sol": [4.5901],
+    "reference_sol": [[4.5901]],
     "num_realization": 5,
     "multiprocess": false,
     "verbose": true,

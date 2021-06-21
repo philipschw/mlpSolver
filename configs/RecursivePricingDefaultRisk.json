@@ -21,7 +21,7 @@
 	"samplingMethod": ["EulerMaruyama"]
   },
   "eval_config": {
-    "reference_sol": [97.705, 58.113],
+    "reference_sol": [[97.705], [58.113]],
     "num_realization": 1,
     "multiprocess": true,
     "verbose": true,
