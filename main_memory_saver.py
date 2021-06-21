@@ -22,10 +22,10 @@ from solver import MLPSolver
 # try to load module which requires sdeint2 (sdeint extension)
 samplingAvailable = True
 try:
-	from generateSamples import start_mlp_generateSamples
+    from generateSamples import start_mlp_generateSamples
 except ModuleNotFoundError:
-	samplingAvailable = False
-	
+    samplingAvailable = False
+    
 
 
 flags.DEFINE_string('config_path', 'configs/semilinear_blackscholes.json',
@@ -42,100 +42,100 @@ np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)
 
 
 def main(argv):
-	del argv
-	with open(FLAGS.config_path) as json_data_file:
-		config = json.load(json_data_file)
-	config = munch.munchify(config)
-	
-	if not os.path.exists(FLAGS.log_dir):
-		os.mkdir(FLAGS.log_dir)
-	path_prefix = os.path.join(FLAGS.log_dir, time.strftime("%Y%m%d%H%M%S", time.gmtime()) + "_" + FLAGS.exp_name)
+    del argv
+    with open(FLAGS.config_path) as json_data_file:
+        config = json.load(json_data_file)
+    config = munch.munchify(config)
+    
+    if not os.path.exists(FLAGS.log_dir):
+        os.mkdir(FLAGS.log_dir)
+    path_prefix = os.path.join(FLAGS.log_dir, time.strftime("%Y%m%d%H%M%S", time.gmtime()) + "_" + FLAGS.exp_name)
 
-	with open('{}_config.json'.format(path_prefix), 'w') as outfile:
-		json.dump(dict((name, getattr(config, name))
-		for name in dir(config) if not name.startswith('__')),outfile, indent=2)
+    with open('{}_config.json'.format(path_prefix), 'w') as outfile:
+        json.dump(dict((name, getattr(config, name))
+        for name in dir(config) if not name.startswith('__')),outfile, indent=2)
 
-	absl_logging.get_absl_handler().setFormatter(logging.Formatter('%(levelname)-6s %(message)s'))
-	absl_logging.set_verbosity('info')
-	
-	
-	num_realization_save_memory = config.eval_config.num_realization
-	config.eval_config.num_realization = 1
-	for d in config.eqn_config.dim:
-		for n in config.eqn_config.num_iteration:
-			for num_gridpoint in config.eqn_config.num_gridpoint:
-				samples = None
-				if(samplingAvailable):
-					# generate samples based on fixed d, n, and number gridpoints
-					if(FLAGS.sample_path != 'test'):
-							# if we load data, then only one realization is allowed
-							if(config.eval_config.num_realization != 1 or len(config.eqn_config.num_gridpoint) != 1):
-								raise ValueError("For loaded data, only one realization (and length of num_gridpoint is 1) is allowed. Please modify your config file.")
-								exit()
-							else:
-								samples = {}
-								samples[1] = np.load(FLAGS.sample_path, allow_pickle=True).item()
-					
-					elif(True in config.eval_config.advanced):
-						samples = {}
-						logging.info('Pre-Generating Samples for advanced mode.')
-						for theta in range(1,num_realization_save_memory + 1):
-							samples[1] = (start_mlp_generateSamples(total_time=config.eqn_config.total_time,
-																		start_time=config.eqn_config.start_time,
-																		M=n,
-																		n=n,
-																		num_gridpoint=num_gridpoint,
-																		dim=d,
-																		active=config.eval_config.advanced,
-																		time_dist_exponent=config.eqn_config.time_dist_exponent))
-							if(config.eval_config.saveSamples):
-								path_prefix_sample = (os.path.join(FLAGS.log_dir, time.strftime("%Y%m%d%H%M%S", time.gmtime())
-																													+ "_" + FLAGS.exp_name
-																													+ "_d" + str(d)
-																													+ "_n" + str(n)
-																													+ "_grid" + str(num_gridpoint)
-																													+ "_realization" + str(theta)))
-								np.save('{}_sample_history.npy'.format(path_prefix_sample), samples[1])
-								
-							for method in config.eqn_config.samplingMethod:
-								path_prefix_realization = (os.path.join(FLAGS.log_dir, time.strftime("%Y%m%d%H%M%S", time.gmtime()) 
-																													+ "_" + FLAGS.exp_name
-																													+ "_d" + str(d)
-																													+ "_n" + str(n)
-																													+ "_method" + method 
-																													+ "_grid" + str(num_gridpoint)))
-								logging.info('Begin to solve %s with dimension %d, iterations n=%d, method=%s, and no.gridpoints=%d' % (config.eqn_config.eqn_name, d, n, method, num_gridpoint))
-								#if method == "Explicit" and num_gridpoint != 1:
-								#	logging.info('Explicit methods with more than one gridpoint will not be evaluated')
-								#	pass
-								#else:
-								
-								mlp = getattr(eqn, config.eqn_config.eqn_name)(config.eqn_config, d, n, method, num_gridpoint)
-								mlp_solver = MLPSolver(config, mlp)
-								training_history = mlp_solver.train(samples=samples)
-						
-								np.savetxt('{}_training_history.csv'.format(path_prefix_realization),
-										   np.vstack(training_history[0:-1]),
-										   fmt=['%d', '%s', '%f', '%s'],
-										   delimiter=",",
-										   header='realization,sol,elapsed_time,cost',
-										   comments='')
-								
-								header = ''
-								if not os.path.isfile('{}_evaluation.csv'.format(path_prefix)):	
-									header = 'dimension,n,average_solution,reference_solution,L1error,rel1error,L2error,rel2error,empiricalSD,elapsed_time'
-								with open('{}_evaluation.csv'.format(path_prefix), 'ab') as file:				
-									np.savetxt(file,
-											   np.array(training_history[-1]).reshape((1,10)),
-											   fmt=['%d', '%d','%s', '%s', '%f', '%f', '%f', '%f', '%f', '%f'],
-											   delimiter=",",
-											   header=header,
-											   comments='')
-								logging.info('\n')
-				else:
-					message="""WARNING sdeint2 package could not be loaded. Pre-Generation of samples for comparison not avaible. Undefined behavior for usage of methods NOT from sdeint. Only limited functionality is available for mlpSolver."""
-					print(message)
-				
-					
+    absl_logging.get_absl_handler().setFormatter(logging.Formatter('%(levelname)-6s %(message)s'))
+    absl_logging.set_verbosity('info')
+    
+    
+    num_realization_save_memory = config.eval_config.num_realization
+    config.eval_config.num_realization = 1
+    for d in config.eqn_config.dim:
+        for n in config.eqn_config.num_iteration:
+            for num_gridpoint in config.eqn_config.num_gridpoint:
+                samples = None
+                if(samplingAvailable):
+                    # generate samples based on fixed d, n, and number gridpoints
+                    if(FLAGS.sample_path != 'test'):
+                            # if we load data, then only one realization is allowed
+                            if(config.eval_config.num_realization != 1 or len(config.eqn_config.num_gridpoint) != 1):
+                                raise ValueError("For loaded data, only one realization (and length of num_gridpoint is 1) is allowed. Please modify your config file.")
+                                exit()
+                            else:
+                                samples = {}
+                                samples[1] = np.load(FLAGS.sample_path, allow_pickle=True).item()
+                    
+                    elif(True in config.eval_config.advanced):
+                        samples = {}
+                        logging.info('Pre-Generating Samples for advanced mode.')
+                        for theta in range(1,num_realization_save_memory + 1):
+                            samples[1] = (start_mlp_generateSamples(total_time=config.eqn_config.total_time,
+                                                                        start_time=config.eqn_config.start_time,
+                                                                        M=n,
+                                                                        n=n,
+                                                                        num_gridpoint=num_gridpoint,
+                                                                        dim=d,
+                                                                        active=config.eval_config.advanced,
+                                                                        time_dist_exponent=config.eqn_config.time_dist_exponent))
+                            if(config.eval_config.saveSamples):
+                                path_prefix_sample = (os.path.join(FLAGS.log_dir, time.strftime("%Y%m%d%H%M%S", time.gmtime())
+                                                                                                                    + "_" + FLAGS.exp_name
+                                                                                                                    + "_d" + str(d)
+                                                                                                                    + "_n" + str(n)
+                                                                                                                    + "_grid" + str(num_gridpoint)
+                                                                                                                    + "_realization" + str(theta)))
+                                np.save('{}_sample_history.npy'.format(path_prefix_sample), samples[1])
+                                
+                            for method in config.eqn_config.samplingMethod:
+                                path_prefix_realization = (os.path.join(FLAGS.log_dir, time.strftime("%Y%m%d%H%M%S", time.gmtime()) 
+                                                                                                                    + "_" + FLAGS.exp_name
+                                                                                                                    + "_d" + str(d)
+                                                                                                                    + "_n" + str(n)
+                                                                                                                    + "_method" + method 
+                                                                                                                    + "_grid" + str(num_gridpoint)))
+                                logging.info('Begin to solve %s with dimension %d, iterations n=%d, method=%s, and no.gridpoints=%d' % (config.eqn_config.eqn_name, d, n, method, num_gridpoint))
+                                #if method == "Explicit" and num_gridpoint != 1:
+                                #   logging.info('Explicit methods with more than one gridpoint will not be evaluated')
+                                #   pass
+                                #else:
+                                
+                                mlp = getattr(eqn, config.eqn_config.eqn_name)(config.eqn_config, d, n, method, num_gridpoint)
+                                mlp_solver = MLPSolver(config, mlp)
+                                training_history = mlp_solver.train(samples=samples)
+                        
+                                np.savetxt('{}_training_history.csv'.format(path_prefix_realization),
+                                           np.vstack(training_history[0:-1]),
+                                           fmt=['%d', '%s', '%f', '%s'],
+                                           delimiter=",",
+                                           header='realization,sol,elapsed_time,cost',
+                                           comments='')
+                                
+                                header = ''
+                                if not os.path.isfile('{}_evaluation.csv'.format(path_prefix)): 
+                                    header = 'dimension,n,average_solution,reference_solution,L1error,rel1error,L2error,rel2error,empiricalSD,elapsed_time'
+                                with open('{}_evaluation.csv'.format(path_prefix), 'ab') as file:               
+                                    np.savetxt(file,
+                                               np.array(training_history[-1]).reshape((1,10)),
+                                               fmt=['%d', '%d','%s', '%s', '%f', '%f', '%f', '%f', '%f', '%f'],
+                                               delimiter=",",
+                                               header=header,
+                                               comments='')
+                                logging.info('\n')
+                else:
+                    message="""WARNING sdeint2 package could not be loaded. Pre-Generation of samples for comparison not avaible. Undefined behavior for usage of methods NOT from sdeint. Only limited functionality is available for mlpSolver."""
+                    print(message)
+                
+                    
 if __name__ == '__main__':
-	app.run(main)
+    app.run(main)
