@@ -9,7 +9,7 @@ except ImportError:
     pass
 
 class Sampler(object):
-    """Base class for defining PDE related function."""
+    """Base class for SDE approximation schemes."""
     
     def __init__(self, eqn_config, dimension, num_gridpoint):
         self.dim_system = eqn_config.dim_system

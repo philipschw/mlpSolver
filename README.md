@@ -22,6 +22,14 @@ There are nine PDEs implemented so far. See [Problems](#problems) section below.
 * `log_dir`: Directory to write logging and output array.
 * `sample_path`: Directory of samples of one realization of the MLP algorithm in the .npy format.
 
+Explanation of `.py` modules:
+* `main.py`: Starts the MLP Approximation Solver. Creates logs.
+* `main_memory_saver.py`: Starts the MLP Approximation Solver. Creates logs. Only usable in `advanced` mode (see `advanced` in the config file section below). Saves memory by computing only one realization of the MLP algorithm with pregenerated samples at once. 
+* `solver.py`: Incorporates the code for the gradient-depedent and gradient-independent MLP approximation algorithms (parallel computing versions and non parallel computing versions), for the error evaluation, and for the cost evaluation.
+* `equation.py`: Base class for defining PDE related function.
+* `sampler.py`: Base class for SDE approximation schemes.
+* `generateSamples.py`: Generates samples for the advanced mode of the mlpSolver. Auxiliary functions for the advanced mode.
+
 Explanation of the config files:
 
 The config part is splitted into the `eqn_config` and the `eval_config`. All parameters concerning the equation are placed in `eqn_config` and all
