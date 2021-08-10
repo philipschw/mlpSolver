@@ -692,7 +692,7 @@ class MLPSolver(object):
                         
                         dX = dXsample(t_approx, self.mlp.total_time, x, dW)[0]
                         dI = dIsample(t_approx, self.mlp.total_time, x, dW, dX)
-                    
+                        
                     rhs_g = rhs_g + (g(dX[-1]) - g(x)) * dI
                 rhs_g = np.insert(np.zeros((self.eqn_config.dim_system,self.mlp.dim)),0,g(x).flatten(),axis=1) + (rhs_g/(M**n))         
                 

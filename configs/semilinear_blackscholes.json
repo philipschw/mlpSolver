@@ -4,20 +4,20 @@
     "eqn_name": "SemilinearBlackScholes",
     "total_time": 1.0,
     "start_time": 0.0,
-    "dim": [10],
+    "dim": [1,10,100],
     "num_iteration": [5],
     "dim_system": 1,
 	"gradient_dependent": false,
 	"time_dist_exponent": 1.0,
-	"num_gridpoint": [16],
-	"samplingMethod": ["itoRI5","EulerMaruyama"]
+	"num_gridpoint": [1,2,4,8,16,32,64,128,256,512],
+	"samplingMethod": ["itoRI5"]
   },
   "eval_config": {
     "reference_sol": [[11.98736], [14.68754], [17.07766]],
     "num_realization": 1,
     "multiprocess": true,
     "verbose": true,
-	"advanced": [true,true,false,false,false,true,true,false],
+	"advanced": [false,false,false,false,false,false,false,false],
 	"saveSamples": false
   }
 }

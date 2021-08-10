@@ -629,3 +629,146 @@ class HJBEquation(Equation):
 
     def g(self, x):
         return np.array([[np.log(0.5 * (1 + np.linalg.norm(x)**2))]])
+
+
+
+class PricingDifferentInterestRates(Equation):
+    """
+    Pricing Problem of an European option in a financial market with different interest rates for borrowing and lending. from paper https://arxiv.org/abs/1607.03295v4
+    """
+    def __init__(self, eqn_config, dimension, num_iteration, samplingMethod, num_gridpoint):
+        super(PricingDifferentInterestRates, self).__init__(eqn_config, dimension, num_iteration, samplingMethod, num_gridpoint)
+        self.x_init = np.ones(self.dim) * 100.0
+        self.sigmaC = eqn_config.sigma
+        self.muC = eqn_config.mu
+        self.Rl = eqn_config.Rl
+        self.Rb = eqn_config.Rb
+        self.samplingMethod = samplingMethod
+        self.num_gridpoint = num_gridpoint
+        
+        if(self.samplingMethod != "Explicit"): 
+            if(self.num_gridpoint < 1):
+                raise ValueError("SDE Approximation schemes with <=1 gridpoint are not valid.")
+            else:
+                self.sampleMethod = getattr(spl, self.samplingMethod)(eqn_config, dimension, num_gridpoint)
+                self.sampleNeeded = self.sampleMethod.sampleNeeded
+        else:
+            self.sampleNeeded = np.array([True,True,False,False,False,False,False,False])
+            
+        self.dx_sigmaMatrix = np.zeros((self.dim, self.dim, self.dim))
+        for i in range(self.dim):
+            self.dx_sigmaMatrix[i, i, i] = self.sigmaC
+
+    def mu(self, x, t):
+        return self.muC * x
+    
+    def sigma(self, x, t):
+        return self.sigmaC*np.diag(x)
+    
+    # only needed for itoSRID2 sampling method
+    #def sigma(self, x, t):
+    #   return self.sigmaC*x
+        
+    def dx_sigma(self, x, t):
+        return self.dx_sigmaMatrix
+
+    def dXsample(self, t_start, t_end, x_0, dW=None):
+        if(self.samplingMethod != "Explicit"):
+            return self.sampleMethod.dXsampling(self.mu, self.sigma, self.dx_sigma, t_start, t_end, x_0, dW)
+        else:
+            if dW == None:
+                dW = {}
+                dW[(1,)] = np.array([np.random.normal(0.0,np.sqrt(t_end-t_start),(1,self.dim))])
+            #return (x_0 * np.exp((self.muC - 0.5*(self.sigmaC**2))*(t_end - t_start) +  self.sigmaC * dW[(1,)][0]), dW)
+            return (x_0 * np.exp((self.muC - 0.5*(self.sigmaC**2))*(t_end - t_start) +  self.sigmaC * np.array([np.sum(np.vstack(dW[(1,)]), axis=0)])), dW)
+    
+    def dIsample(self, t_start, t_end, x, dW, Xsample):
+        return np.concatenate([np.ones(1), np.sum(np.vstack(dW[(1,)]), axis=0) / (t_end - t_start)])
+
+    def f(self, t, x, v):
+        return np.array([[-self.Rl * v[0][0] - ((self.muC - self.Rl) / self.sigmaC) * sum(v[0][1:]) + (self.Rb - self.Rl) * max((sum(v[0][1:]) / self.sigmaC) - v[0][0],0.0)]])
+
+    def g(self, x):
+        if(self.dim == 1):
+            return np.array([[max(x[0]-100.0, 0.0)]])
+        else:
+            return np.array([[max(max(x)-120.0,0.0) - 2*max(max(x)-150.0,0.0)]])
+        
+        
+class SemilinearStochasticLotkaVolterra(Equation):
+    """
+    Semilinear Stochastic Lotka Volterra
+    """
+    def __init__(self, eqn_config, dimension, num_iteration, samplingMethod, num_gridpoint):
+        super(SemilinearStochasticLotkaVolterra, self).__init__(eqn_config, dimension, num_iteration, samplingMethod, num_gridpoint)
+        self.x_init = np.ones(self.dim)*0.1
+        self.samplingMethod = samplingMethod
+        self.num_gridpoint = num_gridpoint
+        self.alpha = eqn_config.alpha
+        self.beta1 = eqn_config.beta1 /self.dim
+        self.beta2 = eqn_config.beta2 / self.dim
+        
+        if(self.samplingMethod != "Explicit"):
+            self.sampleMethod = getattr(spl, self.samplingMethod)(eqn_config, dimension, num_gridpoint)
+            self.sampleNeeded = self.sampleMethod.sampleNeeded
+            
+    def mu(self, x, t):
+        #x1 = np.array([x,]*self.dim) - np.diag(x + (1.0/self.beta2)*self.beta1*x)
+        #return self.alpha*x+self.beta2*np.dot(x1.T,x)
+        return self.alpha*x
+    
+    def sigma(self, x, t):
+        return self.alpha*(np.diag(x[:-1], -1) + np.diag(x, 0) + np.diag(x[1:], 1))
+    
+    def Dmu(self, x, t, states):
+        D = x.reshape((self.dim,self.dim))
+        #X = states[t] # shape(d,)
+        tmp = np.zeros((self.dim,self.dim))
+        for i in range(0, self.dim):
+            for j in range(0, self.dim):
+                #tmp[i,j] = (i==j)*(self.alpha + np.sum(x)*self.beta2 - x[i]*(self.beta2 - 2*self.beta1)) + (i!=j)*self.beta2*x[i]
+                tmp[i,j] = (i==j)*self.alpha
+        return np.dot(tmp,D).reshape(-1)
+    
+    def Dsigma(self, x, t):
+        D = x.reshape((self.dim,self.dim))
+        tmp = np.ones(self.dim)
+        deriv = np.diag(tmp[:-1], -1) + np.diag(tmp, 0) + np.diag(tmp[1:], 1)
+        res = np.empty((0,self.dim**2))
+        res2 = np.zeros((self.dim**2,self.dim**2))
+        for j in range(0,self.dim):
+            tmp2 = np.zeros((self.dim,self.dim))
+            tmp2[:,j] = deriv[:,j]
+            col = np.dot(tmp2,D).reshape(-1)
+            res = np.vstack([res,col])
+        res2[0:(self.dim**2), 0:self.dim] = res.T
+        return res2
+        
+    def dXsample(self, t_start, t_end, x_0, dW=None):
+        if(self.samplingMethod != "Explicit"):
+            return self.sampleMethod.dXsampling(self.mu, self.sigma, self.dx_sigma, t_start, t_end, x_0, dW)
+    
+    def dIsample(self, t_start, t_end, x, dW, Xsample):
+        grid = self.sampleMethod.find_grid(float(t_start), float(t_end))
+        states = dict(zip(grid, Xsample))
+        dW_reshape = self.sampleMethod.reshapeD(grid, self.sampleMethod.sampleNeeded, dW)
+        Dstates = self.sampleMethod.dXsampling(lambda x,t: self.Dmu(x,t,states), self.Dsigma, self.dx_sigma, t_start, t_end, np.diag(np.ones(self.dim)).reshape(-1), dW_reshape)[0]
+        dI = np.zeros(self.dim)
+        sigma_inv = np.linalg.inv(self.sigma(Xsample[0],t_start))
+        integrand = np.dot(sigma_inv, Dstates[0].reshape((self.dim,self.dim))).T
+        dI = dI + np.dot(integrand, dW[(1,)][0].flatten())
+        if(len(grid) != 2):
+            for k in range(1,len(Dstates)-2):
+                sigma_inv = np.linalg.inv(self.sigma(Xsample[k],grid[k]))
+                integrand = np.dot(sigma_inv, Dstates[k].reshape((self.dim,self.dim))).T
+                dI = dI + np.dot(integrand, dW[(1,)][1][k-1])
+            sigma_inv = np.linalg.inv(self.sigma(Xsample[-2],grid[-2]))
+            integrand = np.dot(sigma_inv, Dstates[-2].reshape((self.dim,self.dim))).T
+            dI = dI + np.dot(integrand, dW[(1,)][2].flatten())
+        return np.concatenate([np.ones(1), np.dot(self.sigma(Xsample[0], t_start).T, dI) / (t_end - t_start)])
+
+    def f(self, t, x, v):
+        return np.array([[np.sqrt(np.sum(v[0][1:]**2) + 1)]])
+
+    def g(self, x):
+        return np.array([[1 / (2 + 0.4 * np.linalg.norm(x)**2)]])

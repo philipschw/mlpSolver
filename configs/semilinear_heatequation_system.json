@@ -4,20 +4,20 @@
     "eqn_name": "SystemSemilinearHeatEquation",
     "total_time": 1.0,
     "start_time": 0.0,
-    "dim": [10],
-    "num_iteration": [5],
+    "dim": [1,10],
+    "num_iteration": [3,4],
     "dim_system": 2,
 	"gradient_dependent": false,
 	"time_dist_exponent": 1.0,
-	"num_gridpoint": [1],
-	"samplingMethod": ["Explicit"]
+	"num_gridpoint": [1,16],
+	"samplingMethod": ["Explicit", "EulerMaruyama", "TamedEulerMaruyama", "itoSRI2Ikpw", "itoSRI2Iwik", "itoSRI2Imr", "MilsteinIkpw", "MilsteinIwik", "MilsteinImr", "itoSRIC2", "itoRI5"]
   },
   "eval_config": {
     "reference_sol": [[0.47656, 2.45639],[0.21889, 4.67698],[0.14272, 6.95539]],
-    "num_realization": 5,
-    "multiprocess": true,
+    "num_realization": 1,
+    "multiprocess": false,
     "verbose": true,
-	"advanced": [true,true,false,false,false,false,false,false],
+	"advanced": [true,true,true,true,true,true,true,true],
 	"saveSamples": false
   }
 }

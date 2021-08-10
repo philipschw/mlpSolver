@@ -54,6 +54,138 @@ class Sampler(object):
             grid[-1] = t_end
         return grid
         
+    def reshapeD(self, grid, active, dW):
+        """
+        Reshape the samples for the derivative process D of the
+        state process X from dimension d into dimension d**2
+        
+        Parameters
+        ---------
+        grid: array
+            Sample time points
+        active: array
+            An array of boolean values which determines which samples are needed
+            for the respective sampling method. This array is defined as self.sampleNeeded
+            in each sampling method in the module sampler.
+        dW: dict
+            Samples of the current realization
+            
+        Returns
+        ------
+        Reshaped dict dW_reshape of the samples.
+        
+        """
+        dW_reshape = {}
+        if(len(grid) == 2):
+            if(active[1]): 
+                tmp = np.zeros((1,self.dim**2))
+                tmp[0, 0:self.dim] = dW[(1,)][0]
+                dW_reshape[(1,)] = np.array([tmp]) # sample dW
+            if(active[2]):
+                tmp = np.zeros((1,self.dim**2,self.dim**2))
+                tmp[0, 0:self.dim, 0:self.dim] = dW[(2,)][0]
+                dW_reshape[(2,)] = np.array([tmp])          # sample Ikpw
+            if(active[3]): 
+                tmp = np.zeros((1,self.dim**2,self.dim**2))
+                tmp[0, 0:self.dim, 0:self.dim] = dW[(3,)][0]
+                dW_reshape[(3,)] = np.array([tmp]) # sample Iwik
+            if(active[4]): 
+                tmp = np.zeros((1,self.dim**2,self.dim**2))
+                tmp[0, 0:self.dim, 0:self.dim] = dW[(4,)][0]
+                dW_reshape[(4,)] = np.array([tmp]) # sample Imr
+            if(active[5]):
+                tmp = np.zeros((1,self.dim**2))
+                tmp[0, 0:(self.dim-1)] = dW[(5,)][0]
+                dW_reshape[(5,)] = np.array([tmp]) # sample Itilde
+            if(active[6]): 
+                tmp = np.zeros((1,self.dim**2))
+                tmp[0, 0:self.dim] = dW[(6,)][0]
+                dW_reshape[(6,)] = np.array([tmp]) # sample Ihat
+            if(active[7]): 
+                tmp = np.zeros((1,self.dim**2))
+                tmp[0, 0:self.dim] = dW[(7,)][0]
+                dW_reshape[(7,)] = np.array([tmp]) # sample Xi
+        else:
+            if(active[1]): 
+                tmp = np.zeros((1,self.dim**2))
+                tmp2 = np.zeros((len(grid)-3,self.dim**2))
+                tmp3 = np.zeros((1,self.dim**2))
+                tmp[0, 0:self.dim] = dW[(1,)][0]
+                tmp2[0:len(grid)-3, 0:self.dim] = dW[(1,)][1]
+                tmp3[0, 0:self.dim] = dW[(1,)][2]
+                dW_reshape[(1,)] = np.array([tmp, tmp2, tmp3]) # sample dW
+                
+            if(len(grid) != 3):
+                if(active[2]):
+                    tmp = np.zeros((1,self.dim**2,self.dim**2))
+                    tmp2 = np.zeros((len(grid)-3,self.dim**2,self.dim**2))
+                    tmp3 = np.zeros((1,self.dim**2,self.dim**2))
+                    tmp[0, 0:self.dim, 0:self.dim] = dW[(2,)][0]
+                    tmp2[0:len(grid)-3, 0:self.dim, 0:self.dim] = dW[(2,)][1]
+                    tmp3[0, 0:self.dim, 0:self.dim] = dW[(2,)][2]
+                    dW_reshape[(2,)] = np.array([tmp, tmp2, tmp3]) # sample Ikpw
+                if(active[3]): 
+                    tmp = np.zeros((1,self.dim**2,self.dim**2))
+                    tmp2 = np.zeros((len(grid)-3,self.dim**2,self.dim**2))
+                    tmp3 = np.zeros((1,self.dim**2,self.dim**2))
+                    tmp[0, 0:self.dim, 0:self.dim] = dW[(3,)][0]
+                    tmp2[0:len(grid)-3, 0:self.dim, 0:self.dim] = dW[(3,)][1]
+                    tmp3[0, 0:self.dim, 0:self.dim] = dW[(3,)][2]
+                    dW_reshape[(3,)] = np.array([tmp, tmp2, tmp3])# sample Iwik
+                if(active[4]): 
+                    tmp = np.zeros((1,self.dim**2,self.dim**2))
+                    tmp2 = np.zeros((len(grid)-3,self.dim**2,self.dim**2))
+                    tmp3 = np.zeros((1,self.dim**2,self.dim**2))
+                    tmp[0, 0:self.dim, 0:self.dim] = dW[(4,)][0]
+                    tmp2[0:len(grid)-3, 0:self.dim, 0:self.dim] = dW[(4,)][1]
+                    tmp3[0, 0:self.dim, 0:self.dim] = dW[(4,)][2]
+                    dW_reshape[(4,)] = np.array([tmp, tmp2, tmp3]) # sample Imr
+            else:
+                if(active[2]):
+                    tmp = np.zeros((1,self.dim**2,self.dim**2))
+                    tmp3 = np.zeros((1,self.dim**2,self.dim**2))
+                    tmp[0, 0:self.dim, 0:self.dim] = dW[(2,)][0]
+                    tmp3[0, 0:self.dim, 0:self.dim] = dW[(2,)][2]
+                    dW_reshape[(2,)] = np.array([tmp, None, tmp3]) # sample Ikpw
+                if(active[3]): 
+                    tmp = np.zeros((1,self.dim**2,self.dim**2))
+                    tmp3 = np.zeros((1,self.dim**2,self.dim**2))
+                    tmp[0, 0:self.dim, 0:self.dim] = dW[(3,)][0]
+                    tmp3[0, 0:self.dim, 0:self.dim] = dW[(3,)][2]
+                    dW_reshape[(3,)] = np.array([tmp, None, tmp3]) # sample Iwik
+                if(active[4]): 
+                    tmp = np.zeros((1,self.dim**2,self.dim**2))
+                    tmp3 = np.zeros((1,self.dim**2,self.dim**2))
+                    tmp[0, 0:self.dim, 0:self.dim] = dW[(4,)][0]
+                    tmp3[0, 0:self.dim, 0:self.dim] = dW[(4,)][2]
+                    dW_reshape[(4,)] = np.array([tmp, None, tmp3])# sample Imr
+            if(active[5]):
+                tmp = np.zeros((1,self.dim**2))
+                tmp2 = np.zeros((len(grid)-3,self.dim**2))
+                tmp3 = np.zeros((1,self.dim**2))
+                tmp[0, 0:(self.dim-1)] = dW[(5,)][0]
+                tmp2[0:len(grid)-3, 0:(self.dim-1)] = dW[(5,)][1]
+                tmp3[0, 0:(self.dim-1)] = dW[(5,)][2]
+                dW_reshape[(5,)] = np.array([tmp, tmp2, tmp3]) # sample Itilde
+            if(active[6]): 
+                tmp = np.zeros((1,self.dim**2))
+                tmp2 = np.zeros((len(grid)-3,self.dim**2))
+                tmp3 = np.zeros((1,self.dim**2))
+                tmp[0, 0:self.dim] = dW[(6,)][0]
+                tmp2[0:len(grid)-3, 0:self.dim] = dW[(6,)][1]
+                tmp3[0, 0:self.dim] = dW[(6,)][2]
+                dW_reshape[(6,)] = np.array([tmp, tmp2, tmp3]) # sample Ihat
+            if(active[7]): 
+                tmp = np.zeros((1,self.dim**2))
+                tmp2 = np.zeros((len(grid)-3,self.dim**2))
+                tmp3 = np.zeros((1,self.dim**2))
+                tmp[0, 0:self.dim] = dW[(7,)][0]
+                tmp2[0:len(grid)-3, 0:self.dim] = dW[(7,)][1]
+                tmp3[0, 0:self.dim] = dW[(7,)][2]
+                dW_reshape[(7,)] = np.array([tmp, tmp2, tmp3]) # sample Xi
+        
+        return dW_reshape
+        
 
 class EulerMaruyama(Sampler):
     """
@@ -79,6 +211,10 @@ class EulerMaruyama(Sampler):
         
         # Find gridvalues
         grid = self.find_grid(t_start, t_end)
+        
+        #f=open('test.csv','ab')
+        #np.savetxt(f,np.array([grid]))
+        #f.close()
         
         # Sample or read random variables
         if(len(grid) == 2):
@@ -596,7 +732,7 @@ class itoRI5(Sampler):
     """
     def __init__(self, eqn_config, dimension, num_gridpoint):
         super(itoRI5, self).__init__(eqn_config, dimension, num_gridpoint)
-        self.sampleNeeded = np.array([True,False,False,False,False,True,True,False])
+        self.sampleNeeded = np.array([True,True,False,False,False,True,True,False])
     
     def dXsampling(self, mu, sigma, dx_sigma, t_start, t_end, x_0, dW=None):
         """

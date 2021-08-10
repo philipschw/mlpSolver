@@ -1,0 +1,27 @@
+{
+  "eqn_config": {
+    "_comment": "XXX",
+    "eqn_name": "SemilinearStochasticLotkaVolterra",
+    "total_time": 0.5,
+    "start_time": 0.0,
+    "dim": [10],
+    "num_iteration": [5],
+    "dim_system": 1,
+	"num_gridpoint": [1,2,4,8,16,32,64,128,256,512],
+	"time_dist_exponent": 0.5,
+	"gradient_dependent": true,
+	"sigma": 0.2,
+	"alpha": 0.2,
+	"beta1": 0.0,
+	"beta2": 0.0,
+	"samplingMethod": ["itoRI5"]
+  },
+  "eval_config": {
+    "reference_sol": [[7.156]],
+    "num_realization": 10,
+    "multiprocess": true,
+    "verbose": true,
+	"advanced": [true,true,false,false,false,true,true,false],
+	"saveSamples": false
+  }
+}

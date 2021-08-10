@@ -48,7 +48,7 @@ def main(argv):
     
     if not os.path.exists(FLAGS.log_dir):
         os.mkdir(FLAGS.log_dir)
-    path_prefix = os.path.join(FLAGS.log_dir, time.strftime("%Y%m%d%H%M%S", time.gmtime()) + "_" + FLAGS.exp_name)
+    path_prefix = os.path.join(FLAGS.log_dir, time.strftime("%Y%m%d%H%M%S.{}".format(repr(time.time()).split('.')[1][:3]), time.gmtime()) + "_" + FLAGS.exp_name)
 
     with open('{}_config.json'.format(path_prefix), 'w') as outfile:
         json.dump(dict((name, getattr(config, name))
@@ -86,7 +86,7 @@ def main(argv):
                                                                         active=config.eval_config.advanced,
                                                                         time_dist_exponent=config.eqn_config.time_dist_exponent))
                             if(config.eval_config.saveSamples):
-                                path_prefix_sample = (os.path.join(FLAGS.log_dir, time.strftime("%Y%m%d%H%M%S", time.gmtime())
+                                path_prefix_sample = (os.path.join(FLAGS.log_dir, time.strftime("%Y%m%d%H%M%S.{}".format(repr(time.time()).split('.')[1][:3]), time.gmtime())
                                                                                                                     + "_" + FLAGS.exp_name
                                                                                                                     + "_d" + str(d)
                                                                                                                     + "_n" + str(n)
@@ -98,17 +98,13 @@ def main(argv):
                     print(message)
                 # sample different methods
                 for method in config.eqn_config.samplingMethod:
-                    path_prefix_realization = (os.path.join(FLAGS.log_dir, time.strftime("%Y%m%d%H%M%S", time.gmtime()) 
+                    path_prefix_realization = (os.path.join(FLAGS.log_dir, time.strftime("%Y%m%d%H%M%S.{}".format(repr(time.time()).split('.')[1][:3]), time.gmtime())
                                                                                                         + "_" + FLAGS.exp_name
                                                                                                         + "_d" + str(d)
                                                                                                         + "_n" + str(n)
                                                                                                         + "_method" + method 
                                                                                                         + "_grid" + str(num_gridpoint)))
                     logging.info('Begin to solve %s with dimension %d, iterations n=%d, method=%s, and no.gridpoints=%d' % (config.eqn_config.eqn_name, d, n, method, num_gridpoint))
-                    #if method == "Explicit" and num_gridpoint != 1:
-                    #   logging.info('Explicit methods with more than one gridpoint will not be evaluated')
-                    #   pass
-                    #else:
                     
                     mlp = getattr(eqn, config.eqn_config.eqn_name)(config.eqn_config, d, n, method, num_gridpoint)
                     mlp_solver = MLPSolver(config, mlp)
